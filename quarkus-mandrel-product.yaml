@@ -1,0 +1,65 @@
+schema_version: 1
+version: "20.1"
+from: "ubi8/openjdk-11"
+
+
+name: "quarkus/quarkus-mandrel-ubi8"
+
+labels:
+- name: "com.redhat.component"
+  value: "quarkus-mandrel-rhel8-container"
+- name: "io.k8s.description"
+  value: "Quarkus Native s2i OpenJDK builder image providing the `native-image` executable."
+- name: "io.k8s.display-name"
+  value: "Quarkus Native s2i OpenJDK builder (GraalVM Native, Mandrel distribution)"
+- name: "io.openshift.tags"
+  value: "executable,java,quarkus,mandrel,native"
+- name: "maintainer"
+  value: "Red Hat OpenJDK Team <openjdk@redhat.com>"
+- name: "summary"
+  value: "Quarkus Native s2i OpenJDK builder (GraalVM Native, Mandrel distribution)"
+
+packages:
+  manager: dnf
+  content_sets_file: content_sets_rhel8.yaml
+
+modules:
+  repositories:
+  - path: modules
+  install:
+  - name: common-packages
+  - name: mandrel
+    version: "_version_"
+envs:
+- name: "PATH"
+  value: "$PATH:$JAVA_HOME/bin"
+
+volumes:
+- name: "volume.project"
+  path: "/project"
+
+run:
+  user: 185
+  workdir: "/project"
+  entrypoint:
+  - "native-image"
+
+osbs:
+  configuration:
+    container:
+      # We only build image on x86_64
+      platforms:
+        only:
+          - x86_64
+      compose:
+        pulp_repos: true
+        # used for inheritance of yum repos and ODCS composes from baseimage build
+        inherit: true
+        # used for requesting ODCS compose of type "tag"
+        packages:
+          - quarkus-mandrel
+          - quarkus-mandrel-java
+        signing_intent: release
+  repository:
+    name: containers/quarkus-mandrel
+    branch: quarkus-1-rhel-8
