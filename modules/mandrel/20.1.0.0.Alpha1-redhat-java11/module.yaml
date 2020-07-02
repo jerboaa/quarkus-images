@@ -12,3 +12,6 @@ packages:
   install:
   - libffi-devel
   - quarkus-mandrel
+  # Install java-11-openjdk-src for JDK source lookup when
+  # debuginfos are being generated
+  - java-11-openjdk-src
